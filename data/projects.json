@@ -1,0 +1,14 @@
+{
+    "projects": [
+        {
+            "id" : 1,
+            "name": "Project1",
+            "completed": "false",
+            "tasks": [{
+                "id": 1, 
+                "name": "Task1",
+                "completed": "false"
+            }] 
+        }
+    ]
+}
