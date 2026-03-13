@@ -7,7 +7,7 @@ const store = createStore({
       currentUser: null,
 
       // projects
-      projects: [],
+      projects: [], //fetch via api
       currentProject: null,
 
       // tasks
@@ -17,7 +17,12 @@ const store = createStore({
   getters: {
     isAuthenticated: (state) => !!state.currentUser,
     //The !! syntax in JavaScript is used to convert a value to its boolean equivalent.
+    getTaskCountByProject: (state) => (projectId) => {
+      return state.tasks.filter((task) => task.projectId === projectId).length
+    },
   },
+
+  // A dynamic getter that calculates tasks per project!
 
   mutations: {
     // Users and authentication methods
@@ -40,7 +45,12 @@ const store = createStore({
 
     // Project methods
 
-    // MARK_AS_COMPLETED(state, project) {},
+    MARK_AS_COMPLETED(state, project) {
+      const index = state.projects.findIndex((p) => p.id === project.id)
+      if (index !== -1) {
+        state.projects[index].completed = !state.projects[index].completed // toggle the completed status
+      }
+    },
 
     SET_PROJECT(state, projects) {
       state.projects = projects
@@ -63,6 +73,12 @@ const store = createStore({
     // NEW: Filter out the deleted project by its ID
     DELETE_PROJECT(state, projectId) {
       state.projects = state.projects.filter((p) => p.id !== projectId)
+    },
+
+    // Task mutations
+
+    SET_TASKS(state, tasks) {
+      state.tasks = tasks
     },
   },
 
@@ -181,6 +197,36 @@ const store = createStore({
         return { ok: true }
       } catch (error) {
         console.log('Deletion failed:', error)
+        return { ok: false }
+      }
+    },
+
+    async toggleProjectCompletion({ commit }, project) {
+      try {
+        const response = await fetch(`http://localhost:3001/projects/${project.id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ completed: !project.completed }),
+        })
+        const updatedProject = await response.json()
+        commit('MARK_AS_COMPLETED', updatedProject)
+        return { ok: true }
+      } catch (error) {
+        console.log('Error toggling completion: ', error)
+        return { ok: false }
+      }
+    },
+
+    // Tasks actions
+
+    async fetchTasks({ commit }) {
+      try {
+        const response = await fetch('http://localhost:3001/tasks')
+        const tasks = await response.json()
+        commit('SET_TASKS', tasks)
+        return { ok: true }
+      } catch (error) {
+        console.log('Error fetching tasks: ', error)
         return { ok: false }
       }
     },

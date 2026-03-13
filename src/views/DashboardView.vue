@@ -1,14 +1,22 @@
 <script setup>
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
-import { ref } from 'vue'
+import { onMounted, ref, computed } from 'vue'
 import Navbar from '@/components/Navbar.vue'
 import StatusCard from '@/components/StatusCard.vue'
 
 const store = useStore()
 const router = useRouter()
-const countUsers = ref(store.state.users.length) // counting projects
-const countProjects = ref(store.state.projects.length) // counting users
+
+// fetch projects lifecycle hook
+onMounted(() => {
+  store.dispatch('fetchProjects')
+})
+
+const countProjects = computed(()=>store.state.projects.length) // counting projects
+const countUsers = computed(()=>store.state.users.length)
+
+// counting users
 const name = ref(store.state.currentUser ? store.state.currentUser.name : '')
 </script>
 <template>

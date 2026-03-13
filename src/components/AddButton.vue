@@ -1,4 +1,7 @@
-<script setup></script>
+<script setup>
+
+const emit = defineEmits(['add-project'])
+</script>
 
 <template>
   <!-- Header Row with Button -->
@@ -7,7 +10,7 @@
     <h2 class="fw-bold">Projects List</h2>
 
     <!-- Add Project Button -->
-    <button class="btn btn-dark d-flex align-items-center shadow-sm fw-bold">
+    <button @click="emit('add-project')" class="btn btn-dark d-flex align-items-center shadow-sm fw-bold">
       <svg
         xmlns="http://www.w3.org"
         width="20"

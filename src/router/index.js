@@ -9,8 +9,9 @@ import TasksView from '@/views/TasksView.vue'
 const routes = [
   {path: '/', component: AuthView, name: 'Auth'},
   {path: '/dashboard', component: DashboardView, name: 'Dashboard', meta: { requiresAuth:true }},
-  {path: '/projects', component: ProjectsView, name: 'Projects', meta: { requiresAuth:true }},
-  {path: '/tasks', component: TasksView, name: 'Tasks', meta: { requiresAuth:true }},
+  {path: '/projects', component: ProjectsView, name: 'Projects', meta: { requiresAuth:true },
+    },
+  {path: '/projects/:projectId/tasks', component: TasksView, name: 'ProjectTasks', meta: { requiresAuth:true }},
   {path: '/profile', component: ProfileView, name: 'Profile', meta: { requiresAuth:true }}
 ]
 
