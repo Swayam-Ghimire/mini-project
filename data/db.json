@@ -1,0 +1,57 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "name": "Admin",
+      "email": "admin@test.com",
+      "password": "password123"
+    },
+    {
+      "id": 2,
+      "name": "Swayam",
+      "email": "swayam@gmail.com",
+      "password": "swayam12345"
+    },
+    {
+      "id": 3,
+      "name": "Swayam Ghimire",
+      "email": "swayam@test.com",
+      "password": "swayam12345"
+    },
+    {
+      "name": "New User",
+      "email": "newuser@gmail.com",
+      "password": "newuser12345",
+      "id": 4
+    }
+  ],
+  "projects": [
+    {
+      "id": 1,
+      "name": "Project1",
+      "description": "This is description of Project1",
+      "completed": false 
+    },
+    {
+      "id": 2,
+      "name": "Project2",
+      "description": "This is description of Project2",
+      "completed": false
+    }
+  ],
+  "tasks": [
+    {
+      "id": 1,
+      "projectId": 1,
+      "name": "Task1",
+      "completed": false
+    },
+    {
+      "id": 2,
+      "projectId": 1,
+      "name": "Task 2 for Project 1",
+      "completed": false
+    }
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
+}

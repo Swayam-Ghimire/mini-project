@@ -18,7 +18,8 @@ const props = defineProps({
     <div class="card h-100 shadow-sm border-0" style="width: 20rem; min-height: 250px">
       <div class="card-body d-flex flex-column text-center p-4">
         <h5 class="card-title d-flex align-items-center justify-content-center mb-4">
-          <!-- SVG Icon remains same -->
+          <!-- SVG ICON -->
+           <slot></slot>
           {{ heading }}
         </h5>
 

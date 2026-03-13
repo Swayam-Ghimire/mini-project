@@ -10,16 +10,15 @@ const logout = () => {
   store.commit('LOGOUT') // Call mutations method logout
   router.push('/')
 }
-// dynamic class according to url get current url from router and render.
-const toggle = (tab) => {
-  active.value = tab
-}
+
+
+
 </script>
 <template>
   <nav class="navbar navbar-expand-lg bg-dark border-bottom border-body" data-bs-theme="dark">
     <div class="container-fluid">
       <!-- Brand Name or Logo -->
-      <RouterLink to="/dashboard" class="navbar-brand">Project Management</RouterLink>
+      <RouterLink to="/dashboard" class="navbar-brand fw-bold">Project Management</RouterLink>
 
       <!-- Mobile Toggler Button -->
       <button
@@ -38,22 +37,14 @@ const toggle = (tab) => {
       <div class="collapse navbar-collapse" id="navbarMain">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           <li class="nav-item">
-            <RouterLink
+            <!-- isActive is prop which indicates link is currently active  -->
+            <RouterLink class="nav-link"
               to="/projects"
-              :class="[
-                'nav-link',
-                active === 'projects' ? 'fw-bold text-decoration-underline text-white' : '',
-              ]"
-              aria-current="page"
-              @click="toggle('projects')"
-              >Projects</RouterLink
-            >
+              v-slot="{ isActive }" 
+              aria-current="page"><span :class="{'fw-bold text-decoration-underline text-white' : isActive }">Projects</span></RouterLink>
           </li>
           <li class="nav-item">
-            <RouterLink to="/profile" :class="[
-                'nav-link',
-                active === 'users' ? 'fw-bold text-decoration-underline text-white' : '',
-              ]" @click="toggle('users')">Users</RouterLink>
+            <RouterLink to="/profile" class="nav-link" v-slot="{ isActive }"><span :class="{'fw-bold text-decoration-underline text-white' : isActive }">Users</span></RouterLink>
           </li>
         </ul>
 
