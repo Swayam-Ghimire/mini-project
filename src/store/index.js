@@ -12,6 +12,7 @@ const store = createStore({
 
       // tasks
       tasks: [],
+      currentTasks: [], // To hold tasks of the currently selected project
     }
   },
   getters: {
@@ -20,6 +21,9 @@ const store = createStore({
     getTaskCountByProject: (state) => (projectId) => {
       return state.tasks.filter((task) => task.projectId === projectId).length
     },
+
+
+    
   },
 
   // A dynamic getter that calculates tasks per project!
@@ -80,6 +84,21 @@ const store = createStore({
     SET_TASKS(state, tasks) {
       state.tasks = tasks
     },
+
+    SET_CURRENT_TASKS(state, tasks) {
+      state.currentTasks = tasks
+    },
+
+    ADD_TASK(state, task) {
+      state.tasks.push(task)
+    },
+
+    MARK_TASK_COMPLETED(state, task) {
+      const index = state.currentTasks.findIndex((t) => t.id === task.id)
+      if (index !== -1) {
+        state.currentTasks[index].completed = !state.currentTasks[index].completed
+      }
+    }
   },
 
   actions: {
@@ -230,6 +249,60 @@ const store = createStore({
         return { ok: false }
       }
     },
+
+    async addTask({ commit, state }, { name, projectId }) {
+      const newTask = {
+        name: name,
+        projectId: parseInt(projectId),
+        completed: false,
+      }
+      try {
+        const response = await fetch(`http://localhost:3001/tasks`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(newTask)
+        })
+        const task = await response.json()
+        commit('ADD_TASK', task)
+        commit('SET_CURRENT_TASKS', [...state.currentTasks, task]) // Add to current tasks if it belongs to the current project
+        return {ok:true}
+      }
+
+      catch (error) {
+        console.log('Error occured while adding the task', error)
+        return {ok:false}
+      }
+    },
+
+    async toggleTaskCompletion( {commit}, task ) {
+      try {
+        const response = await fetch(`http://localhost:3001/tasks/${task.id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ completed: !task.completed }),
+        })
+        const updatedTask = await response.json()
+        commit('MARK_TASK_COMPLETED', updatedTask)
+        return { ok: true }
+      } catch (error) {
+        console.log('Error occurred while toggling task completion:', error)
+        return { ok: false }
+      }
+    },
+
+    async fetchTasksByProject({ commit }, projectId) {
+      try {
+        const response = await fetch(`http://localhost:3001/projects/${projectId}/tasks`)
+        const tasks = await response.json()
+        commit('SET_CURRENT_TASKS', tasks)
+        return {ok:true}
+      }
+      catch (error) {
+        console.log("Errro", error)
+        return {ok:false}
+      }
+
+    }
   },
 })
 

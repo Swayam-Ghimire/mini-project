@@ -83,12 +83,12 @@ const projects = computed(() => {
   return store.state.projects
 })
 
-const taskNumber = ref()
+
 </script>
 <template>
   <Navbar />
   <div class="container mt-4">
-    <AddButton @add-project="addProject" />
+    <AddButton @add="addProject" heading='Project List' btnName="Add Project"></AddButton>
 
     <!-- Project card -->
     <div class="row">

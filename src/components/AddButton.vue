@@ -1,5 +1,14 @@
 <script setup>
-
+defineProps({
+  heading: {
+    type: String,
+    required: true,
+  },
+  btnName: {
+    type: String,
+    required: true,
+  },
+})
 const emit = defineEmits(['add-project'])
 </script>
 
@@ -7,12 +16,15 @@ const emit = defineEmits(['add-project'])
   <!-- Header Row with Button -->
   <!-- Button component -->
   <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="fw-bold">Projects List</h2>
+    <h2 class="fw-bold">{{ heading }}</h2>
 
     <!-- Add Project Button -->
-    <button @click="emit('add-project')" class="btn btn-dark d-flex align-items-center shadow-sm fw-bold">
+    <button
+      @click="emit('add')"
+      class="btn btn-dark d-flex align-items-center shadow-sm fw-bold"
+    >
       <svg
-        xmlns="http://www.w3.org"
+        xmlns="http://www.w3.org/2000/svg"
         width="20"
         height="20"
         fill="currentColor"
@@ -24,7 +36,7 @@ const emit = defineEmits(['add-project'])
           d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"
         />
       </svg>
-      Add Project
+      {{ btnName }}
     </button>
   </div>
 </template>
