@@ -2,16 +2,24 @@
 import { ref, onMounted } from 'vue'
 import { useStore } from 'vuex'
 import { useRouter } from 'vue-router'
+import { Form, Field, ErrorMessage } from "vee-validate"
+import * as yup from "yup" // for validation schema this is a library
 
 const store = useStore()
 const router = useRouter()
 
-// local state (fake for now)
+// local state
 const mode = ref('login') // 'login' | 'register'
 const name = ref('')
 const email = ref('')
 const password = ref('')
 const error = ref('')
+
+const schema = yup.object({
+  name: yup.string().required('Name is required'),
+  email: yup.string().email('Invalid email format').required('Email is required'),
+  password: yup.string().min(8, 'Password must be at least 8 characters').required('Password is required'),
+})
 
 // helpers
 function switchTo(next) {
@@ -28,18 +36,18 @@ onMounted(() => {
 })
 
 
-async function onSubmitRegister() {
+async function onSubmitRegister(values) {
   // console.log('Registered (fake)', { name: name.value, email: email.value })
   const result = await store.dispatch('register', {
-    name: name.value,
-    email: email.value,
-    password: password.value,
+    name: values.name,
+    email: values.email,
+    password: values.password,
   })
   if (result.ok) {
     router.push('/dashboard') // Use router.push when navigating within a component (e.g., in a method triggered by a button click)
-    name.value = ''
-    email.value = ''
-    password.value = ''
+    // name.value = ''
+    // email.value = ''
+    // password.value = ''
   }
 
   error.value = result.message
@@ -89,15 +97,18 @@ async function onSubmitLogin() {
       <!-- REGISTER PANEL -->
       <div v-show="mode === 'register'" class="card shadow-sm border-0 p-4 auth-panel register">
         <h2 class="text-center mb-4 fw-bold">Register</h2>
-        <form @submit.prevent="onSubmitRegister">
+        <Form :validation-schema="schema" @submit.prevent="onSubmitRegister">
           <div class="mb-3">
-            <input v-model.trim="name" type="text" class="form-control" placeholder="Name" required />
+            <Field name="name" type="text" class="form-control" placeholder="Name" />
+            <ErrorMessage name="name" class="text-danger small mt-1" />
           </div>
           <div class="mb-3">
-            <input v-model.trim="email" type="email" class="form-control" placeholder="Email" required />
+            <Field name="email" type="email" class="form-control" placeholder="Email" />
+            <ErrorMessage name="email" class="text-danger small mt-1" />
           </div>
           <div class="mb-3">
-            <input v-model.trim="password" type="password" class="form-control" placeholder="Password" required />
+            <Field name="password" type="password" class="form-control" placeholder="Password" />
+            <ErrorMessage name="password" class="text-danger small mt-1" />
           </div>
           <div class="d-grid gap-2 mt-4">
             <button class="btn btn-dark" type="submit">Create Account</button>
@@ -106,7 +117,7 @@ async function onSubmitLogin() {
               <a href="/auth" class="text-decoration-none small fw-bold" @click.prevent="switchTo('login')">Login</a>
             </div>
           </div>
-        </form>
+        </Form>
         <p v-if="error" class="text-danger text-center small mt-3">{{ error }}</p>
       </div>
 
