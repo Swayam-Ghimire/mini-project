@@ -9,7 +9,7 @@ defineProps({
     required: true,
   },
 })
-const emit = defineEmits(['add-project'])
+const emit = defineEmits(['add'])
 </script>
 
 <template>

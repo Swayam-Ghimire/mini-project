@@ -6,6 +6,8 @@ import AddButton from '@/components/AddButton.vue'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import { ref, computed, onMounted } from 'vue'
+import { useVuelidate } from '@vuelidate/core'
+import { required, minLength, maxLength } from '@vuelidate/validators'
 const router = useRouter()
 const store = useStore()
 // state
@@ -62,6 +64,10 @@ const projectTasks = (id) => {
 
 // save project
 const saveProject = () => {
+  v$.value.$validate()
+  if (v$.value.$error) {
+    return
+  }
   if (editingProject.value) {
     // update flow
     store.dispatch('editProject', { id: editingProject.value.id, updates: form.value })
@@ -82,6 +88,17 @@ onMounted(() => {
 const projects = computed(() => {
   return store.state.projects
 })
+
+// rules for form validation using vuelidate
+const rules = computed(() => {
+  return {
+    name: { required, minLength: minLength(3), maxLength: maxLength(10) },
+    description: { required, minLength: minLength(5) },
+  }
+})
+
+
+const v$ = useVuelidate(rules, form)
 
 
 </script>
@@ -133,8 +150,11 @@ const projects = computed(() => {
                   id="projectName"
                   v-model="form.name"
                   placeholder="e.g., Website Redesign"
-                  required
                 />
+                <div v-if="v$.name.$error" class="text-danger small">
+                  {{ v$.name.$errors[0].$message }}
+                </div>
+
               </div>
 
               <div class="mb-4">
@@ -145,8 +165,10 @@ const projects = computed(() => {
                   rows="3"
                   v-model="form.description"
                   placeholder="What is this project about?"
-                  required
                 ></textarea>
+                <div v-if="v$.description.$error" class="text-danger small">
+                  {{ v$.description.$errors[0].$message }}
+                </div>
               </div>
 
               <div class="d-flex justify-content-end gap-2 border-top pt-3">
