@@ -15,7 +15,7 @@
     <!-- Left Section -->
     <div class="d-flex align-items-center gap-3">
       <!-- Checkbox -->
-      <input type="checkbox" class="form-check-input" @change="emit('toggle', task.id)"/>
+      <input type="checkbox" class="form-check-input" @change="emit('toggle', task.id)" :checked="task.completed"/>
 
       <!-- Task Name -->
       <span :class="{ 'fs-6': true, 'text-decoration-line-through text-muted': task.completed }">

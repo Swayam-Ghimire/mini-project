@@ -1,7 +1,6 @@
 <script setup>
 import AddButton from '@/components/AddButton.vue'
 import Navbar from '@/components/Navbar.vue'
-// import TaskList from '@/components/TaskList.vue'
 import { onMounted, computed, ref } from 'vue'
 import { useStore } from 'vuex'
 import { useRoute } from 'vue-router' // useRoute() is used to read route data and useRouter() to navigate or control routing
