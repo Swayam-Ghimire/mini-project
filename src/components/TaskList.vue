@@ -27,7 +27,7 @@ const onDragChange = (event) => {
   <!-- Task Columns -->
   <div class="row g-4 mt-2">
     <!-- In Progress Column -->
-    <div class="col-lg-6">
+    <div class="row-lg-6">
       <div class="card shadow-sm h-100">
         <div class="card-header bg-light d-flex justify-content-between align-items-center">
           <span class="mb-0 fw-semibold text-sm fs-6">{{ title }}</span>

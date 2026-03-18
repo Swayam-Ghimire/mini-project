@@ -32,6 +32,7 @@ const addTask = () => {
 const saveTask = () => {
   store.dispatch('addTask', form.value)
   showModal.value = false
+  form.value.name = ''
 }
 
 const closeModal = () => {

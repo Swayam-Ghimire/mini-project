@@ -1,3 +1,4 @@
+import api from '@/services/api'
 import { createStore } from 'vuex'
 const store = createStore({
   state() {
@@ -21,9 +22,6 @@ const store = createStore({
     getTaskCountByProject: (state) => (projectId) => {
       return state.tasks.filter((task) => task.projectId === projectId).length
     },
-
-
-    
   },
 
   // A dynamic getter that calculates tasks per project!
@@ -98,59 +96,61 @@ const store = createStore({
       if (index !== -1) {
         state.currentTasks[index].completed = !state.currentTasks[index].completed
       }
-    }
+    },
   },
 
   actions: {
-    // Users action
+    // ================= USERS =================
+
     async fetchUsers({ commit }) {
       try {
-        const response = await fetch('http://localhost:3001/users') // promise
-        const users = await response.json() // promise | users json data
-        commit('SET_USERS', users) // set garcha reactive users array
+        const response = await api.get('/users')
+        const users = response.data
+        commit('SET_USERS', users)
       } catch (error) {
         console.log('Error fetching users:', error)
       }
     },
+
     async register({ state, commit }, { name, email, password }) {
       const exists = state.users.find((u) => u.email === email)
       if (exists) return { ok: false, message: 'Email already used' }
+
       const newUser = {
         name,
         email,
         password,
       }
+
       try {
-        // send new user to json-server
-        const response = await fetch('http://localhost:3001/users', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(newUser),
-        })
-        // json-server responds with the newly created user, including its auto-generated ID!
-        const createdUser = await response.json()
+        const response = await api.post('/users', newUser)
+        const createdUser = response.data
 
         commit('ADD_USER', createdUser)
         commit('SET_CURRENT_USER', createdUser)
+
         return { ok: true }
       } catch (error) {
         console.error('Registration failed:', error)
         return { ok: false, message: 'server error' }
       }
     },
-    login({ state, commit, getters }, { email, password }) {
+
+    login({ state, commit }, { email, password }) {
       const user = state.users.find((u) => u.email === email && u.password === password)
+
       if (!user) return { ok: false, message: 'Invalid login' }
 
       commit('SET_CURRENT_USER', user)
       return { ok: true }
     },
 
-    // Project actions
+    // ================= PROJECTS =================
+
     async fetchProjects({ commit }) {
       try {
-        const response = await fetch('http://localhost:3001/projects')
-        const projects = await response.json()
+        const response = await api.get('/projects')
+        const projects = response.data
         commit('SET_PROJECT', projects)
         return { ok: true }
       } catch (error) {
@@ -165,18 +165,14 @@ const store = createStore({
         description: description,
         completed: false,
       }
-      try {
-        const options = {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(newProject),
-        }
-        const response = await fetch('http://localhost:3001/projects', options)
-        const createdProject = await response.json() // Gets the project with the new ID!
 
-        // FIXED: Commit the createdProject so the frontend has the ID
+      try {
+        const response = await api.post('/projects', newProject)
+        const createdProject = response.data
+
         commit('ADD_PROJECT', createdProject)
         commit('SET_CURRENT_PROJECT', createdProject)
+
         return { ok: true }
       } catch (error) {
         console.log('Addition failed:', error)
@@ -184,16 +180,10 @@ const store = createStore({
       }
     },
 
-    // NEW: Edit Action (Accepts the project ID and the new data)
     async editProject({ commit }, { id, updates }) {
       try {
-        // Use PATCH to update only specific fields (like name, description, or completed status)
-        const response = await fetch(`http://localhost:3001/projects/${id}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(updates),
-        })
-        const updatedProject = await response.json()
+        const response = await api.patch(`/projects/${id}`, updates)
+        const updatedProject = response.data
 
         commit('EDIT_PROJECT', updatedProject)
         return { ok: true }
@@ -203,15 +193,9 @@ const store = createStore({
       }
     },
 
-    // NEW: Delete Action (Requires only the ID of the project to delete)
     async deleteProject({ commit }, id) {
       try {
-        // Call the delete endpoint
-        await fetch(`http://localhost:3001/projects/${id}`, {
-          method: 'DELETE',
-        })
-
-        // Remove it from the local Vuex state
+        await api.delete(`/projects/${id}`)
         commit('DELETE_PROJECT', id)
         return { ok: true }
       } catch (error) {
@@ -222,12 +206,11 @@ const store = createStore({
 
     async toggleProjectCompletion({ commit }, project) {
       try {
-        const response = await fetch(`http://localhost:3001/projects/${project.id}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ completed: !project.completed }),
+        const response = await api.patch(`/projects/${project.id}`, {
+          completed: !project.completed,
         })
-        const updatedProject = await response.json()
+        const updatedProject = response.data
+
         commit('MARK_AS_COMPLETED', updatedProject)
         return { ok: true }
       } catch (error) {
@@ -236,12 +219,13 @@ const store = createStore({
       }
     },
 
-    // Tasks actions
+    // ================= TASKS =================
 
     async fetchTasks({ commit }) {
       try {
-        const response = await fetch('http://localhost:3001/tasks')
-        const tasks = await response.json()
+        const response = await api.get('/tasks')
+        const tasks = response.data
+
         commit('SET_TASKS', tasks)
         return { ok: true }
       } catch (error) {
@@ -256,32 +240,28 @@ const store = createStore({
         projectId: parseInt(projectId),
         completed: false,
       }
-      try {
-        const response = await fetch(`http://localhost:3001/tasks`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(newTask)
-        })
-        const task = await response.json()
-        commit('ADD_TASK', task)
-        commit('SET_CURRENT_TASKS', [...state.currentTasks, task]) // Add to current tasks if it belongs to the current project
-        return {ok:true}
-      }
 
-      catch (error) {
+      try {
+        const response = await api.post('/tasks', newTask)
+        const task = response.data
+
+        commit('ADD_TASK', task)
+        commit('SET_CURRENT_TASKS', [...state.currentTasks, task])
+
+        return { ok: true }
+      } catch (error) {
         console.log('Error occured while adding the task', error)
-        return {ok:false}
+        return { ok: false }
       }
     },
 
-    async toggleTaskCompletion( {commit}, task ) {
+    async toggleTaskCompletion({ commit }, task) {
       try {
-        const response = await fetch(`http://localhost:3001/tasks/${task.id}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ completed: !task.completed }),
+        const response = await api.patch(`/tasks/${task.id}`, {
+          completed: !task.completed,
         })
-        const updatedTask = await response.json()
+        const updatedTask = response.data
+
         commit('MARK_TASK_COMPLETED', updatedTask)
         return { ok: true }
       } catch (error) {
@@ -292,17 +272,16 @@ const store = createStore({
 
     async fetchTasksByProject({ commit }, projectId) {
       try {
-        const response = await fetch(`http://localhost:3001/projects/${projectId}/tasks`)
-        const tasks = await response.json()
-        commit('SET_CURRENT_TASKS', tasks)
-        return {ok:true}
-      }
-      catch (error) {
-        console.log("Errro", error)
-        return {ok:false}
-      }
+        const response = await api.get(`/projects/${projectId}/tasks`)
+        const tasks = response.data
 
-    }
+        commit('SET_CURRENT_TASKS', tasks)
+        return { ok: true }
+      } catch (error) {
+        console.log('Error', error)
+        return { ok: false }
+      }
+    },
   },
 })
 
